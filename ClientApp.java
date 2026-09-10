@@ -9,7 +9,7 @@ public class ClientApp {
         System.out.println(dateTime);
 
         //set address of sever and port number to connect to
-        String serverAddress = "100.80.21.22";
+        String serverAddress = "";
         int portNum = 53245;
 
         try {
