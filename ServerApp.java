@@ -8,6 +8,8 @@ public class ServerApp {
     public static void main(String[] args){
         String startUpMessage = "This Sever is Running";
         System.out.println(startUpMessage);
+
+        //set listening port for client to connect to
         int portNum = 53245;
         try { 
             ServerSocket listener = new ServerSocket(portNum);
@@ -15,14 +17,15 @@ public class ServerApp {
                 Socket socket1 = listener.accept();
                 System.out.println("Client connected!");
 
+                //put the socket input stream into a buffered reader
                 BufferedReader in = new BufferedReader(
                     new InputStreamReader(socket1.getInputStream())
                 );
 
-                //read buffer
+                //read and print buffer
                 String message;
                 while ((message = in.readLine()) != null ) {
-                    System.out.println("Client says: " + message);
+                    System.out.println(message);
                 }
             }
         } catch (IOException e) {
