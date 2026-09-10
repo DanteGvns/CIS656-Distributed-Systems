@@ -19,7 +19,7 @@ public class ClientApp {
 
             //Write the string to the output port
             PrintWriter outputSocket = new PrintWriter(severSocket.getOutputStream(), true);
-            outputSocket.print(dateMessage);
+            outputSocket.println(dateMessage);
             System.out.println(notify);
 
             //close the socket
