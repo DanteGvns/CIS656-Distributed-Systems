@@ -5,9 +5,6 @@ import java.util.Date;
 
 public class ClientApp {
     public static void main(String[] args){
-        String dateTime = new Date().toString();
-        System.out.println(dateTime);
-
         //set address of sever and port number to connect to
         String serverAddress = "";
         int portNum = 53245;

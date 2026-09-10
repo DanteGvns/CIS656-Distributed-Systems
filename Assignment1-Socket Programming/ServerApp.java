@@ -6,11 +6,14 @@ import java.io.InputStreamReader;
 
 public class ServerApp {
     public static void main(String[] args){
-        String startUpMessage = "This Sever is Running";
-        System.out.println(startUpMessage);
-
         //set listening port for client to connect to
         int portNum = 53245;
+        
+        String startUpMessage = "This Sever is Running";
+        String waiting = "Waiting for another message....";
+
+        System.out.println(startUpMessage);
+
         try { 
             ServerSocket listener = new ServerSocket(portNum);
             while (true) {
@@ -26,6 +29,7 @@ public class ServerApp {
                 String message;
                 while ((message = in.readLine()) != null ) {
                     System.out.println(message);
+                    System.out.println(waiting);
                 }
             }
         } catch (IOException e) {
