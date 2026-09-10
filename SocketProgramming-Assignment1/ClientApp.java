@@ -15,6 +15,7 @@ public class ClientApp {
         String prompt = "Please enter the Severs IP address:";
         String returnMessage = "Received";
         String notify = "The reply has been sent to the server!";
+        String message;
 
         //get IP address from user
         System.out.println(prompt);
@@ -30,10 +31,9 @@ public class ClientApp {
             BufferedReader in = new BufferedReader(
                 new InputStreamReader(severSocket.getInputStream())
             );
-            String message;
-            while ((message = in.readLine()) != null ) {
-                System.out.println(message);
-            }
+            message = in.readLine();
+            System.out.println(message);
+
 
             //send back received to sever
             PrintWriter outputSocket = new PrintWriter(severSocket.getOutputStream(), true);
