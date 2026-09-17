@@ -14,54 +14,69 @@ public class ServerApp {
         String startUpMessage = "This Sever is Running";
         String waiting = "Waiting for another message....";
         String sentMessage = "The message has been sent to the Client!";
-        String clientConnected = "Hello, you are client #";
+        
         Boolean stillRunning = true;
-        int countClients = 0;
-        String dateMessage;
+        int countClients = 1;
         String message;
-        String upperCase;
 
         System.out.println(startUpMessage);
-
+    
         try { 
-            //alawys listen for a new client
+            ServerSocket listener = new ServerSocket(portNum);
             while (true) {
-                ServerSocket listener = new ServerSocket(portNum);
                 //connect to client
-                while (stillRunning) {
-                    Socket appSocket = listener.accept();
-                    System.out.println(clientConnected);
-
-                    //Send out which Client they are
-                    PrintWriter outputSocket = new PrintWriter(appSocket.getOutputStream(), true);
-                    outputSocket.println(clientConnected + countClients++);
-                    System.out.println(sentMessage);
-
-                    //wait for messsage from client
-                    BufferedReader in = new BufferedReader(
-                        new InputStreamReader(appSocket.getInputStream())
-                    );
-                    while ((message = in.readLine()) != null ) {
-                        if (message.trim() == "time") {
-                            System.out.println("message was time sending back time");
-                            dateMessage = new Date().toString();
-                            outputSocket.println(dateMessage);
-                        } else if (message != "") {
-                            upperCase = message.toUpperCase();
-                            System.out.println("message was " + message + " sending back time" + upperCase);
-                            outputSocket.println(upperCase);
-                        } else {
-                            appSocket.close();
-                            listener.close();
-                            stillRunning = false;
-                        }
-                    }
-                }
-                stillRunning = true;
+                Socket appSocket = listener.accept();
+                int clientNumber = countClients++;
+                System.out.println("Client #" + clientNumber + " connected.");
+                new Thread(() ->handleClient(appSocket, clientNumber)).start();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
+
+
+    //make things simpler by making a method for each connected Client
+    private static void handleClient(Socket appSocket, int clientNumber) {
+            String clientConnected = "Hello, you are client #";
+            String message;
+            String upperCase;
+            String dateMessage;
+
+        try {
+            //Send out which Client they are
+            PrintWriter outputSocket = new PrintWriter(appSocket.getOutputStream(), true);
+            outputSocket.println(clientConnected + clientNumber);
+
+            //wait for messsage from client
+            BufferedReader in = new BufferedReader(
+                new InputStreamReader(appSocket.getInputStream())
+            );
+            while ((message = in.readLine()) != null ) {
+
+                if (message.trim().equals("time")) {
+                    System.out.println("message was time sending back time");
+                    dateMessage = new Date().toString();
+                    outputSocket.println(dateMessage);
+
+                } else if (!message.isEmpty()) {
+                    upperCase = message.toUpperCase();
+                    System.out.println("message was " + message + " sending back " + upperCase);
+                    outputSocket.println(upperCase);
+
+                }
+                System.out.println("Client #" + clientNumber + " has disconnected.");
+            }
+        //catch for if client disconnets, mainly when they Ctrl + C
+        } catch (java.net.SocketException e) {
+        System.out.println("Client #" + clientNumber + " has disconnected.");
+
+        //regular catch server side error, prints which client instance caused it
+        } catch (IOException e) {
+            System.err.println("Connection error for client #" + clientNumber
+                    + ": " + e.getMessage());
+        }
+    }
+
 }

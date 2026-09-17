@@ -11,38 +11,61 @@ public class ClientApp {
         int portNum = 53245;
 
         String prompt = "Please enter the Severs IP address:";
-        String returnMessage = "Received";
-        String notify = "The reply has been sent to the server!";
+        String returnMessage;
+        String notify = "Server Response:";
         String message;
 
         //get IP address from user
         System.out.println(prompt);
         Scanner scanner = new Scanner((System.in));
-        String serverAddress = scanner.nextLine();
+        String serverAddress;
+
+        //make sure the app doesn't error if the user ctrl+c while typing Server Address
+        if (scanner.hasNextLine()){
+            serverAddress = scanner.nextLine();
+        } else {
+            scanner.close();
+            return;
+        }
 
         //connect to the sever and send message
         try {
             //connect to sever
             Socket severSocket = new Socket(serverAddress, portNum);
 
-            //Read and print message from server, this should be the date
+            //listen for which client # we are
             BufferedReader in = new BufferedReader(
                 new InputStreamReader(severSocket.getInputStream())
             );
             message = in.readLine();
             System.out.println(message);
 
-
-            //send back received to sever
+            //send a message to sever
             PrintWriter outputSocket = new PrintWriter(severSocket.getOutputStream(), true);
-            outputSocket.println(returnMessage);
+            while (scanner.hasNextLine()){
+                message = scanner.nextLine();
 
-            //let users now the message was sent
-            System.out.println(notify);
+                //close socket is user enters ""
+                if (message.isEmpty()){
+                    severSocket.close();
+                    System.out.println("Connection closed.");
+                    break;
 
-            //close the socket
-            severSocket.close();
+                } else {
+                    outputSocket.println(message);
 
+                    //listen for response from server
+                    returnMessage = in.readLine();
+                    System.out.println(notify);
+                    System.out.println(returnMessage);
+
+                }
+            }
+        //catch sever closing error
+        } catch (java.net.SocketException e) {
+        System.out.println("Connection to sever unexpectedly ended.");
+
+        //regular catch server side error, prints which client instance caused it
         } catch (IOException e) {
             e.printStackTrace();
         }
