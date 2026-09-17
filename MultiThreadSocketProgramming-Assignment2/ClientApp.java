@@ -11,13 +11,14 @@ public class ClientApp {
         //port number used to communicate
         int portNum = 53245;
 
-        String prompt = "Please enter the Severs IP address:";
+        String serverPrompt = "Please enter the Severs IP address:";
+        String sendPrompt = "Please enter a string to send to the server:";
         String returnMessage;
         String notify = "\nServer Response:";
         String message;
 
         //get IP address from user
-        System.out.println(prompt);
+        System.out.println(serverPrompt);
         Scanner scanner = new Scanner((System.in));
         String serverAddress;
 
@@ -44,6 +45,8 @@ public class ClientApp {
             //send a message to sever
             PrintWriter outputSocket = new PrintWriter(severSocket.getOutputStream(), true);
             while (scanner.hasNextLine()){
+                //ask user for message
+                System.out.println(sendPrompt);
                 message = scanner.nextLine();
 
                 //close socket is user enters ""

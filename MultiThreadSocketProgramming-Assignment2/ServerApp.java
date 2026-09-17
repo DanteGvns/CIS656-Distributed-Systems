@@ -56,13 +56,11 @@ public class ServerApp {
             while ((message = in.readLine()) != null ) {
 
                 if (message.trim().equals("time")) {
-                    System.out.println("message was time sending back time");
                     dateMessage = new Date().toString();
                     outputSocket.println(dateMessage);
 
                 } else if (!message.isEmpty()) {
                     upperCase = message.toUpperCase();
-                    System.out.println("message was " + message + " sending back " + upperCase);
                     outputSocket.println(upperCase);
 
                 } else if (message.isEmpty()){
@@ -70,7 +68,7 @@ public class ServerApp {
 
                 } else{
                     System.out.println("Error: unexpected communication error with client.");
-                    
+
                 }
             }
         //catch for if client disconnets, mainly when they Ctrl + C
