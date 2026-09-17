@@ -65,8 +65,13 @@ public class ServerApp {
                     System.out.println("message was " + message + " sending back " + upperCase);
                     outputSocket.println(upperCase);
 
+                } else if (message.isEmpty()){
+                    System.out.println("Client #" + clientNumber + " has disconnected.");
+
+                } else{
+                    System.out.println("Error: unexpected communication error with client.");
+                    
                 }
-                System.out.println("Client #" + clientNumber + " has disconnected.");
             }
         //catch for if client disconnets, mainly when they Ctrl + C
         } catch (java.net.SocketException e) {

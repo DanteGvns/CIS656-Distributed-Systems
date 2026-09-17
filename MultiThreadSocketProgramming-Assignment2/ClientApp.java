@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.UnknownHostException;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -12,7 +13,7 @@ public class ClientApp {
 
         String prompt = "Please enter the Severs IP address:";
         String returnMessage;
-        String notify = "Server Response:";
+        String notify = "\nServer Response:";
         String message;
 
         //get IP address from user
@@ -57,11 +58,14 @@ public class ClientApp {
                     //listen for response from server
                     returnMessage = in.readLine();
                     System.out.println(notify);
-                    System.out.println(returnMessage);
+                    System.out.println(returnMessage+"\n");
 
                 }
             }
-        //catch sever closing error
+        //catch error for invalid host ip address
+        } catch (UnknownHostException e) {
+            System.out.println("Could not resolve host: " + serverAddress);
+        //catch for if client disconnets, mainly when they Ctrl + C
         } catch (java.net.SocketException e) {
         System.out.println("Connection to sever unexpectedly ended.");
 
