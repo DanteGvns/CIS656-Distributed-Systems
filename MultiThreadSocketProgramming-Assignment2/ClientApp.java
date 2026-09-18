@@ -40,13 +40,14 @@ public class ClientApp {
                 new InputStreamReader(severSocket.getInputStream())
             );
             message = in.readLine();
-            System.out.println(message);
+            System.out.println("\n"+message);
 
+
+            //ask user for message
+            System.out.println(sendPrompt);
             //send a message to sever
             PrintWriter outputSocket = new PrintWriter(severSocket.getOutputStream(), true);
             while (scanner.hasNextLine()){
-                //ask user for message
-                System.out.println(sendPrompt);
                 message = scanner.nextLine();
 
                 //close socket is user enters ""
@@ -62,6 +63,7 @@ public class ClientApp {
                     returnMessage = in.readLine();
                     System.out.println(notify);
                     System.out.println(returnMessage+"\n");
+                    System.out.println(sendPrompt);
 
                 }
             }
