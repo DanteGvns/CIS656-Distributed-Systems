@@ -52,7 +52,6 @@ public class Peer {
 				
 				if ("ACCEPTED".equalsIgnoreCase(initPeerResponse)) {
 					mySelf.connect(connectedPeer, 5001);
-					System.out.println("Connected to Peer at: " + connectedPeer);
 					centralServerStub.storePeer(myIP);
 				} else {
 					while (!"Accepted".equalsIgnoreCase(initPeerResponse)){
