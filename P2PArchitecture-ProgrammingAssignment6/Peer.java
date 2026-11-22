@@ -47,20 +47,24 @@ public class Peer {
 			} else {
 				String initPeerIP = centralServerResponse;
 				System.out.println("Attempting to Connect to Peer at: " + initPeerIP);
-
+				String connectedPeer = initPeerIP;
 				PeerMethods remotePeer = (PeerMethods)Naming.lookup("rmi://" + initPeerIP + ":5001/peer");
 				String initPeerResponse = remotePeer.connect(myIP, myPort);
-				String connectedPeer = "";
-				while (!"Accepted".equalsIgnoreCase(initPeerResponse)){
-					connectedPeer = initPeerResponse;
-					System.out.println("Peer at: " + initPeerIP + " is full.");
-					System.out.println("Attempting to Connect to Peer at: " + initPeerResponse);
+				
+				if ("ACCEPTED".equalsIgnoreCase(initPeerResponse)) {
+					System.out.println("Connected to Peer at: " + connectedPeer);
+				} else {
+					while (!"Accepted".equalsIgnoreCase(initPeerResponse)){
+						connectedPeer = initPeerResponse;
+						System.out.println("Peer at: " + initPeerIP + " is full.");
+						System.out.println("Attempting to Connect to Peer at: " + initPeerResponse);
 
-					remotePeer = (PeerMethods)Naming.lookup("rmi://" + initPeerResponse + ":5001/peer");
-					initPeerResponse = remotePeer.connect(myIP, myPort);
+						remotePeer = (PeerMethods)Naming.lookup("rmi://" + initPeerResponse + ":5001/peer");
+						initPeerResponse = remotePeer.connect(myIP, myPort);
+						mySelf.connect(connectedPeer, 5001);
+						System.out.println("Connected to Peer at: " + connectedPeer);
+					}
 				}
-				mySelf.connect(connectedPeer, 5001);
-				System.out.println("Connect to Peer at: " + connectedPeer);
 
 			}
 
