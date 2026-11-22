@@ -7,6 +7,12 @@ import java.util.Random;
 public class PeerImpl extends UnicastRemoteObject implements PeerMethods {
     private List<String> neighbors = new ArrayList<>();
     private final Random random = new Random();
+    volatile boolean serverOn = true;
+
+    @Override
+    public void setServerOff() {
+        serverOn = false;
+    }
 
     public PeerImpl() throws RemoteException {
         super();

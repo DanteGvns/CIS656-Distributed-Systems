@@ -32,6 +32,7 @@ public class CentralServer{
 						}
 					}
 				} else if (userCommand.equalsIgnoreCase("quit")) {
+					stub.shutDown();
 					UnicastRemoteObject.unexportObject(stub, true);
 					break;
 				}

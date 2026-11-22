@@ -94,8 +94,11 @@ public class Peer {
 					}
 				}
 				try {
-					centralServerStub.removePeer(myIP);
-				} catch (Exception e) {
+					if (mySelf.serverOn) {
+						centralServerStub.removePeer(myIP);
+					}
+				} catch (RemoteException e) {
+					System.err.println("Could not unregister from the server: " + e);
 				}
 				UnicastRemoteObject.unexportObject(mySelf, true);
 				break;

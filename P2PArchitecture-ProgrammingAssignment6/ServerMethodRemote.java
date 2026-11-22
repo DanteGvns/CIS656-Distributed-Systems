@@ -46,6 +46,17 @@ public class ServerMethodRemote extends UnicastRemoteObject implements ServerMet
 		return peerIPs;
 	};
 
+	void shutDown() {
+		for (String ip : List.copyOf(peerIPs)) {
+			try {
+				PeerMethods peer = (PeerMethods) java.rmi.registry.LocateRegistry.getRegistry(ip, 5001).lookup("peer");
+				peer.setServerOff();
+			} catch (RemoteException | NotBoundException e) {
+				System.err.println("Could not notify peer " + ip + ": " + e);
+			}
+		}
+	}
+
 	public void storePeer(String peerIp)throws RemoteException{
 		peerIPs.add(peerIp);
 		System.out.println("Peer: " + peerIp + " has connected to a peer.");
