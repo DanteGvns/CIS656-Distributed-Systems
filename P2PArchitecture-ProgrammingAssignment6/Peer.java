@@ -14,7 +14,7 @@ public class Peer {
 		System.setProperty("java.rmi.server.hostname", myIP);
 		LocateRegistry.createRegistry(myPort);
 		PeerImpl mySelf = new PeerImpl();
-		Naming.rebind("rmi://" + myIP + "/peer", mySelf);  
+		Naming.rebind("rmi://" + myIP + ":5001/peer", mySelf);  
 
 		
 		//ask user to enter the central sever ip
