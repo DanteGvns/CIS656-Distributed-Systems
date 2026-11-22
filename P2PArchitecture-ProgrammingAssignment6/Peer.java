@@ -103,7 +103,11 @@ public class Peer {
 						);
 					}
 				}
-				centralServerStub.removePeer(myIP);
+				try {
+					centralServerStub.removePeer(myIP);
+				} catch (Exception e) {
+					System.out.println("Central Server unavailable. Skipping removal.");
+				}
 				UnicastRemoteObject.unexportObject(mySelf, true);
 				break;
 			}
