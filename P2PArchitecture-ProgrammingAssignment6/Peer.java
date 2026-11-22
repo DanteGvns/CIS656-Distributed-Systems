@@ -10,14 +10,26 @@ public class Peer {
 	public static void main(String args[]) throws IOException, NotBoundException{
 		BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
 		String centralServerIP;
-		do {
+		ServerMethod centralServerStub;
+		while (true) {
 			System.out.println("Please enter the IP address of the Central Server or type \"quit\" to exit the program:");
 			centralServerIP = userInput.readLine();
 			if (centralServerIP == null || "quit".equalsIgnoreCase(centralServerIP.strip())) {
 				return;
 			}
 			centralServerIP = centralServerIP.strip();
-		} while (centralServerIP.isEmpty());
+			if (centralServerIP.isEmpty()) {
+				continue;
+			}
+			try {
+				centralServerStub = (ServerMethod) LocateRegistry.getRegistry(centralServerIP, 5000).lookup("centralServer");
+				break;
+			} catch (RemoteException e) {
+				System.err.println("Could not connect to the Central Server at " + centralServerIP + ":5000. Check the address and make sure the server is running.");
+			} catch (NotBoundException e) {
+				System.err.println("Reached " + centralServerIP + ":5000, but the centralServer service is not registered.");
+			}
+		}
 
 		//Rmi setup for the peer itself
 		Integer myPort = 5001;
@@ -27,7 +39,6 @@ public class Peer {
 		PeerImpl mySelf = new PeerImpl();
 		Naming.rebind("rmi://" + myIP + ":5001/peer", mySelf);  
 
-		ServerMethod centralServerStub=(ServerMethod)Naming.lookup("rmi://" + centralServerIP + ":5000/centralServer");
 		String centralServerResponse = "";
 		try {
 			centralServerResponse = centralServerStub.getRandomPeer(myIP);
