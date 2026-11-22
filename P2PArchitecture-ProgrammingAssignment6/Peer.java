@@ -52,6 +52,7 @@ public class Peer {
 				String initPeerResponse = remotePeer.connect(myIP, myPort);
 				
 				if ("ACCEPTED".equalsIgnoreCase(initPeerResponse)) {
+					mySelf.connect(connectedPeer, 5001);
 					System.out.println("Connected to Peer at: " + connectedPeer);
 				} else {
 					while (!"Accepted".equalsIgnoreCase(initPeerResponse)){
