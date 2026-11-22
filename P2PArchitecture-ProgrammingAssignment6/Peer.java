@@ -33,7 +33,7 @@ public class Peer {
 		String centralServerResponse = "";
 		if (!"quit".equalsIgnoreCase(centralServerIP)) { //try to reach central server
 			try {
-				ServerMethod centralServerStub=(ServerMethod)Naming.lookup("rmi://" + centralServerIP + "/centralServer");
+				ServerMethod centralServerStub=(ServerMethod)Naming.lookup("rmi://" + centralServerIP + ":5000/centralServer");
 				centralServerResponse = centralServerStub.getRandomPeer(myIP);
 			} catch (Exception e){System.out.println(e);}
 			finally {
@@ -78,7 +78,7 @@ public class Peer {
 			System.out.println("Type \"neighbors\" to see a list of direct peers or type \"quit\" to disconnect:");
 			BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
 			userCommand = userInput.readLine();
-			
+
 			if (userCommand.equalsIgnoreCase("neighbors")) {
 				myPeers = mySelf.getPeers();
 				if (myPeers.isEmpty()) {
