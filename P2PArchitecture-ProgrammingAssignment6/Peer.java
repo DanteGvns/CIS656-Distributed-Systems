@@ -1,48 +1,98 @@
 import java.rmi.*;
+import java.rmi.registry.LocateRegistry;
 import java.rmi.server.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.io.*;
 import java.net.*;
 
-public class Peer extends UnicastRemoteObject implements Callback{
+public class Peer {
+	public static void main(String args[]) throws IOException, NotBoundException{
+		//Rmi setup for the peer itself
+		Integer myPort = 5001;
+		String myIP = InetAddress.getLocalHost().getHostAddress();
+		System.setProperty("java.rmi.server.hostname", myIP);
+		LocateRegistry.createRegistry(myPort);
+		PeerImpl mySelf = new PeerImpl();
+		Naming.rebind("rmi://" + myIP + "/peer", mySelf);  
 
-	private String peerName;
+		
+		//ask user to enter the central sever ip
+		String centralServerIP = "";
+		System.out.println("Please enter the IP address of the Central Server:");
+		while (true){
+			BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+			centralServerIP = userInput.readLine();
+			if (centralServerIP == null || centralServerIP.isBlank()) {
+				System.out.println("Please enter the IP address of the Central Server or type \"quit\" to exit the program:");
+			} else {
+				break;
+			} 
+		}//end while loop for getting ip from user
 
-	Peer(String peerName)throws RemoteException{
-		super();
-		this.peerName = peerName;
-	}
-
-	public void showMessage(String message)throws RemoteException{
-		System.out.println("Using Callback " + peerName + ": " + message);
-	}
-
-	public static void main(String args[]){
-		Peer mySelf = null;
-		try{
-			System.setProperty("java.rmi.server.hostname", "localhost");
-			Method stub=(Method)Naming.lookup("rmi://localhost:5000/lab6");  
-			String serverName = stub.getServerName();
-			String myIP = InetAddress.getLocalHost().getHostName()
-
-			mySelf = new Peer(myIP);
-			BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-
-			while(true){
-				if(myIP == null || myIP.isEmpty()){
-					break;
+		String centralServerResponse = "";
+		if (!"quit".equalsIgnoreCase(centralServerIP)) { //try to reach central server
+			try {
+				ServerMethod centralServerStub=(ServerMethod)Naming.lookup("rmi://" + centralServerIP + "/centralServer");
+				centralServerResponse = centralServerStub.getRandomPeer(myIP);
+			} catch (Exception e){System.out.println(e);}
+			finally {
+				if(mySelf != null){
+					try{
+						UnicastRemoteObject.unexportObject(mySelf, true);
+					}catch(Exception e){System.out.println(e);}
 				}
+			} //end finally for try
+			//check server response and reach out to peer
+			if(centralServerResponse == null || centralServerResponse.isEmpty()){
+				System.out.println("Error! Could not get response from Central Server at: " + centralServerIP);
+			} else if (centralServerResponse.equals("0")) {
+				//sever sends back "0" when it has no peers stored
+				// listenForPeers()
+				System.out.println("No peers found. \n Starting network.");
+			} else {
+				String initPeerIP = centralServerResponse;
+				System.out.println("Attempting to Connect to Peer at: " + initPeerIP);
 
-				//String response = stub.action(userInput, mySelf);
-				String centralServerResponse = stub.action(userInput, mySelf);
-				System.out.println("Using RMI from " + serverName + ": " + response);
+				PeerMethods remotePeer = (PeerMethods)Naming.lookup("rmi://" + initPeerIP + ":5001/peer");
+				String initPeerResponse = remotePeer.connect(myIP, myPort);
+				String connectedPeer = "";
+				while (!"Accepted".equalsIgnoreCase(initPeerResponse)){
+					connectedPeer = initPeerResponse;
+					System.out.println("Peer at: " + initPeerIP + " is full.");
+					System.out.println("Attempting to Connect to Peer at: " + initPeerResponse);
+
+					remotePeer = (PeerMethods)Naming.lookup("rmi://" + initPeerResponse + ":5001/peer");
+					initPeerResponse = remotePeer.connect(myIP, myPort);
+				}
+				mySelf.connect(connectedPeer, 5001);
+				System.out.println("Connect to Peer at: " + connectedPeer);
+
 			}
-		}catch(Exception e){System.out.println(e);}
-		finally{
-			if(mySelf != null){
-				try{
-					UnicastRemoteObject.unexportObject(mySelf, true);
-				}catch(Exception e){System.out.println(e);}
-			}
+
 		}
-	}
+		List<String> myPeers = new ArrayList<>();
+		String userCommand = "";
+		
+		while (true){
+			System.out.println("Type \"neighbors\" to see a list of direct peers or type \"quit\" to disconnect:");
+			BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+			userCommand = userInput.readLine();
+			
+			if (userCommand.equalsIgnoreCase("neighbors")) {
+				myPeers = mySelf.getPeers();
+				if (myPeers.isEmpty()) {
+					System.out.println("No connected peers.");
+				} else {
+					for (int i = 0; i < myPeers.size(); i++) {
+						System.out.println("Peer " + (i + 1) + ": " + myPeers.get(i));
+					}
+				}
+			} else if (userCommand.equalsIgnoreCase("quit")) {
+				break;
+			}
+
+		}//end while loop for getting ip from user
+
+	} //end main
 }

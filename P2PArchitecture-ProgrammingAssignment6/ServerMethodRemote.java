@@ -9,26 +9,13 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 
-public class MethodRemote extends UnicastRemoteObject implements Method{
+public class ServerMethodRemote extends UnicastRemoteObject implements ServerMethod{
 
 	//store the connected clients
 	private List<String> peerIPs = Collections.synchronizedList(new ArrayList<>());
 
-	MethodRemote()throws RemoteException{
+	ServerMethodRemote()throws RemoteException{
 		super();
-	}
-
-	public String action(String userInput, Callback client)throws RemoteException{
-		String response = "";
-
-		if (userInput.equals("time")) {
-			response = new Date().toString();
-		} else if (!userInput.isEmpty()) {
-			response = userInput.toUpperCase();
-		}
-
-		client.showMessage(response);
-		return response;
 	}
 
 	public String getServerName()throws RemoteException{
@@ -39,11 +26,12 @@ public class MethodRemote extends UnicastRemoteObject implements Method{
 		}
 	}
 
-	public String getRandomPeer()throws RemoteException{
+	public String getRandomPeer(String newPeerIp)throws RemoteException{
 		String response = "";
 
 		if (peerIPs.isEmpty()) {
 			response = "0";
+			peerIPs.add(newPeerIp);
 		} else {
 			String randomPeerIP = peerIPs.get(
 				ThreadLocalRandom.current().nextInt(peerIPs.size())

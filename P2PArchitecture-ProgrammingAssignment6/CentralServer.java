@@ -1,16 +1,17 @@
+import java.net.InetAddress;
 import java.rmi.*;
 import java.rmi.registry.*;
-import java.rmi.RemoteException;
 import java.rmi.server.*;
 
 public class CentralServer{
 
 	public static void main(String args[]){
 		try{
-			System.setProperty("java.rmi.server.hostname", "localhost");
+			String centralServerIP = InetAddress.getLocalHost().getHostName();
+			System.setProperty("java.rmi.server.hostname", centralServerIP);
 			LocateRegistry.createRegistry(5000);
-			MethodRemote stub = new MethodRemote();
-			Naming.rebind("rmi://localhost:5000/lab6", stub);  
+			ServerMethodRemote stub = new ServerMethodRemote();
+			Naming.rebind("rmi://" + centralServerIP + "/centralServer", stub);  
 			System.out.println("The server is running.");
 		}catch(Exception e){System.out.println(e);}
 	}
