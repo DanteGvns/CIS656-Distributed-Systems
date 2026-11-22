@@ -66,7 +66,6 @@ public class Peer {
 					}
 						mySelf.connect(connectedPeer, 5001);
 						centralServerStub.storePeer(myIP);
-						System.out.println("Connected to Peer at: " + connectedPeer);
 				}
 
 			}
