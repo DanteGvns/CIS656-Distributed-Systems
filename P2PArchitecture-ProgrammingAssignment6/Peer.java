@@ -36,13 +36,7 @@ public class Peer {
 				ServerMethod centralServerStub=(ServerMethod)Naming.lookup("rmi://" + centralServerIP + ":5000/centralServer");
 				centralServerResponse = centralServerStub.getRandomPeer(myIP);
 			} catch (Exception e){System.out.println(e);}
-			finally {
-				if(mySelf != null){
-					try{
-						UnicastRemoteObject.unexportObject(mySelf, true);
-					}catch(Exception e){System.out.println(e);}
-				}
-			} //end finally for try
+
 			//check server response and reach out to peer
 			if(centralServerResponse == null || centralServerResponse.isEmpty()){
 				System.out.println("Error! Could not get response from Central Server at: " + centralServerIP);
@@ -89,6 +83,7 @@ public class Peer {
 					}
 				}
 			} else if (userCommand.equalsIgnoreCase("quit")) {
+				UnicastRemoteObject.unexportObject(mySelf, true);
 				break;
 			}
 
