@@ -41,4 +41,14 @@ public class ServerMethodRemote extends UnicastRemoteObject implements ServerMet
 		  
 		return response;
 	}
+	public List<String> getAllPeers() throws RemoteException{
+		return peerIPs;
+	};
+	public void storePeer(String peerIp)throws RemoteException{
+		peerIPs.add(peerIp);
+	};
+
+	public void removePeer(String peerIp)throws RemoteException{
+		peerIPs.remove(peerIp);
+	};
 }

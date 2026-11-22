@@ -29,11 +29,10 @@ public class Peer {
 				break;
 			} 
 		}//end while loop for getting ip from user
-
+		ServerMethod centralServerStub=(ServerMethod)Naming.lookup("rmi://" + centralServerIP + ":5000/centralServer");
 		String centralServerResponse = "";
 		if (!"quit".equalsIgnoreCase(centralServerIP)) { //try to reach central server
 			try {
-				ServerMethod centralServerStub=(ServerMethod)Naming.lookup("rmi://" + centralServerIP + ":5000/centralServer");
 				centralServerResponse = centralServerStub.getRandomPeer(myIP);
 			} catch (Exception e){System.out.println(e);}
 
@@ -54,6 +53,7 @@ public class Peer {
 				if ("ACCEPTED".equalsIgnoreCase(initPeerResponse)) {
 					mySelf.connect(connectedPeer, 5001);
 					System.out.println("Connected to Peer at: " + connectedPeer);
+					centralServerStub.storePeer(myIP);
 				} else {
 					while (!"Accepted".equalsIgnoreCase(initPeerResponse)){
 						connectedPeer = initPeerResponse;
@@ -62,9 +62,11 @@ public class Peer {
 
 						remotePeer = (PeerMethods)Naming.lookup("rmi://" + initPeerResponse + ":5001/peer");
 						initPeerResponse = remotePeer.connect(myIP, myPort);
-						mySelf.connect(connectedPeer, 5001);
-						System.out.println("Connected to Peer at: " + connectedPeer);
+
 					}
+						mySelf.connect(connectedPeer, 5001);
+						centralServerStub.storePeer(myIP);
+						System.out.println("Connected to Peer at: " + connectedPeer);
 				}
 
 			}
@@ -77,9 +79,8 @@ public class Peer {
 			System.out.println("Type \"neighbors\" to see a list of direct peers or type \"quit\" to disconnect:");
 			BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
 			userCommand = userInput.readLine();
-
+			myPeers = mySelf.getPeers();
 			if (userCommand.equalsIgnoreCase("neighbors")) {
-				myPeers = mySelf.getPeers();
 				if (myPeers.isEmpty()) {
 					System.out.println("No connected peers.");
 				} else {
@@ -88,6 +89,21 @@ public class Peer {
 					}
 				}
 			} else if (userCommand.equalsIgnoreCase("quit")) {
+				for (int i = 0; i < myPeers.size(); i++) {
+					//disconnect from every peer
+					String peerIP = myPeers.get(i);
+
+					try {
+						PeerMethods remotePeer = (PeerMethods) Naming.lookup("rmi://" + peerIP + ":5001/peer");
+						remotePeer.disconnect(myIP, myPort);
+					} catch (Exception e) {
+						System.out.println(
+							"Could not disconnect from peer: "
+							+ peerIP
+						);
+					}
+				}
+				centralServerStub.removePeer(myIP);
 				UnicastRemoteObject.unexportObject(mySelf, true);
 				break;
 			}

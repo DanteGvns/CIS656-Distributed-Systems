@@ -39,4 +39,8 @@ public class PeerImpl extends UnicastRemoteObject implements PeerMethods {
         return "ACCEPTED";
     }
 
+    @Override
+    public void disconnect(String ip, int port) throws RemoteException{
+        neighbors.remove(ip);
+    };
 }
