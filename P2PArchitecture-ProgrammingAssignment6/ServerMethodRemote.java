@@ -32,6 +32,7 @@ public class ServerMethodRemote extends UnicastRemoteObject implements ServerMet
 		if (peerIPs.isEmpty()) {
 			response = "0";
 			peerIPs.add(newPeerIp);
+			System.out.println("Peer: " + newPeerIp + " has started a network.");
 		} else {
 			String randomPeerIP = peerIPs.get(
 				ThreadLocalRandom.current().nextInt(peerIPs.size())
@@ -44,11 +45,14 @@ public class ServerMethodRemote extends UnicastRemoteObject implements ServerMet
 	public List<String> getAllPeers() throws RemoteException{
 		return peerIPs;
 	};
+
 	public void storePeer(String peerIp)throws RemoteException{
 		peerIPs.add(peerIp);
+		System.out.println("Peer: " + peerIp + " has connected to a peer.");
 	};
 
 	public void removePeer(String peerIp)throws RemoteException{
 		peerIPs.remove(peerIp);
+		System.out.println("Peer: " + peerIp + " has disconnected.");
 	};
 }

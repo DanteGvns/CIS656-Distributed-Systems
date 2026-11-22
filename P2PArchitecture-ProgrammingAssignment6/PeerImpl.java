@@ -30,10 +30,9 @@ public class PeerImpl extends UnicastRemoteObject implements PeerMethods {
             return neighbors.get(random.nextInt(neighbors.size()));
         }
 
-        String peerAddress = ip;
-
-        if (!neighbors.contains(peerAddress)) {
-            neighbors.add(peerAddress);
+        if (!neighbors.contains(ip)) {
+            neighbors.add(ip);
+            System.out.println("Peer: " + ip + " is now a neighbor.");
         }
 
         return "ACCEPTED";
@@ -42,5 +41,6 @@ public class PeerImpl extends UnicastRemoteObject implements PeerMethods {
     @Override
     public void disconnect(String ip, int port) throws RemoteException{
         neighbors.remove(ip);
+        System.out.println("Peer: " + ip + " has disconnected.");
     };
 }
