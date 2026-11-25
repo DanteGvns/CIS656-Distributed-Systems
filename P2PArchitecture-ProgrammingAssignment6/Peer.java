@@ -33,7 +33,17 @@ public class Peer {
 
 		//Rmi setup for the peer itself
 		Integer myPort = 5001;
-		String myIP = InetAddress.getLocalHost().getHostAddress();
+		//InetAddress.getLocalHost().getHostAddress() was giving me 127.0.0.1 on linux machines
+		//so if we get the loopback address, we try to determine the actual IP by connecting to the central server.
+		InetAddress local = InetAddress.getLocalHost();
+		String myIP = local.getHostAddress();
+		if (local.isLoopbackAddress()) {
+			try (DatagramSocket socket = new DatagramSocket()) {
+				socket.connect(new InetSocketAddress(centralServerIP, 5000));
+				myIP = socket.getLocalAddress().getHostAddress();
+			}
+		}
+		
 		System.setProperty("java.rmi.server.hostname", myIP);
 		LocateRegistry.createRegistry(myPort);
 		PeerImpl mySelf = new PeerImpl();
