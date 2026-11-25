@@ -4,25 +4,20 @@ import java.net.*;
 import java.rmi.*;
 import java.rmi.registry.*;
 import java.rmi.server.*;
-import java.util.Collections;
 import java.util.List;
 
 public class CentralServer{
 
 	public static void main(String args[]){
 		try{
-		//InetAddress.getLocalHost().getHostAddress() was giving me 127.0.0.1 on linux machines
-		//so if we get the loopback address, we try to get any non-loopback IPv4 address
+			// Use the default route when the hostname maps to loopback.
 			InetAddress local = InetAddress.getLocalHost();
 			String centralServerIP = local.getHostAddress();
 			if (local.isLoopbackAddress()) {
-				centralServerIP = Collections.list(NetworkInterface.getNetworkInterfaces()).stream()
-					.flatMap(network -> Collections.list(network.getInetAddresses()).stream())
-					.filter(ip -> ip instanceof Inet4Address && !ip.isLoopbackAddress()
-						&& !ip.isLinkLocalAddress() && !ip.isAnyLocalAddress())
-					.map(InetAddress::getHostAddress)
-					.findFirst()
-					.orElseThrow();
+				try (DatagramSocket socket = new DatagramSocket()) {
+					socket.connect(new InetSocketAddress("8.8.8.8", 53));
+					centralServerIP = socket.getLocalAddress().getHostAddress();
+				}
 			}
 			System.setProperty("java.rmi.server.hostname", centralServerIP);
 			LocateRegistry.createRegistry(5000);
